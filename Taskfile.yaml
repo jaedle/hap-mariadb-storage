@@ -7,7 +7,23 @@ silent: true
 tasks:
   world:
     desc: run all validation and pre-commit steps
-    cmds: [ task: format, task: test, task: cleanup ]
+    cmds:
+      - task: start-dependencies
+      - task: format
+      - task: test
+      - task: cleanup
+      - task: stop-dependencies
+
+  start-dependencies:
+    desc: start development dependencies
+    cmds: [ task: start-database, task: wait-for-database-ready ]
+
+  start-database:
+    dir: build/
+    cmds: [ docker-compose up -d --force-recreate --remove-orphans --renew-anon-volumes ]
+
+  wait-for-database-ready:
+    cmds: [ sleep 15 ]
 
   format:
     desc: format sources
@@ -20,6 +36,12 @@ tasks:
   cleanup:
     desc: cleanup go modules
     cmds: [ go mod verify, go mod tidy ]
+
+  stop-dependencies:
+    desc: start development dependencies
+    dir: build/
+    cmds: [ docker-compose down -v --remove-orphans  ]
+
 
   default:
     cmds: [ task: world ]

@@ -1,6 +1,8 @@
 package storelib
 
-func New() *MariaDbStore {
+import "database/sql"
+
+func New(*sql.DB, string) *MariaDbStore {
 	return &MariaDbStore{}
 }
 
@@ -8,11 +10,11 @@ type MariaDbStore struct {
 }
 
 func (m *MariaDbStore) Set(key string, value []byte) error {
-	panic("implement me")
+	return nil
 }
 
 func (m *MariaDbStore) Get(key string) ([]byte, error) {
-	panic("implement me")
+	return nil, nil
 }
 
 func (m *MariaDbStore) Delete(key string) error {
@@ -21,4 +23,8 @@ func (m *MariaDbStore) Delete(key string) error {
 
 func (m *MariaDbStore) KeysWithSuffix(suffix string) ([]string, error) {
 	panic("implement me")
+}
+
+func (m *MariaDbStore) Init() error {
+	return nil
 }
