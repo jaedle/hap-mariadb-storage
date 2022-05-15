@@ -58,5 +58,22 @@ func (m *MariaDbStore) Delete(key string) error {
 }
 
 func (m *MariaDbStore) KeysWithSuffix(suffix string) ([]string, error) {
-	panic("implement me")
+	rows, err := m.db.Query(fmt.Sprintf("SELECT `key` FROM `%s` WHERE `key` LIKE ?;", m.table), "%"+suffix)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var result []string
+	for cont := true; cont; cont = rows.NextResultSet() {
+		for rows.Next() {
+			var key string
+			if err = rows.Scan(&key); err != nil {
+				return nil, err
+			}
+			result = append(result, key)
+		}
+	}
+
+	return result, nil
 }

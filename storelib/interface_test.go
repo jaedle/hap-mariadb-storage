@@ -122,6 +122,40 @@ var _ = Describe("StoreComparison", func() {
 		Entry("for fs-store", &fsStore{}),
 	)
 
+	DescribeTable("lists keys bey suffix", func(ts testStore) {
+		defer ts.Cleanup()
+		Expect(ts.Init()).NotTo(HaveOccurred())
+		store := ts.Storage()
+
+		Expect(store.Set("test.suffix", binaryContent(1))).NotTo(HaveOccurred())
+		Expect(store.Set(".suffix", binaryContent(1))).NotTo(HaveOccurred())
+		Expect(store.Set(".suffix-1", binaryContent(1))).NotTo(HaveOccurred())
+		Expect(store.Set("1.suffix", binaryContent(1))).NotTo(HaveOccurred())
+		Expect(store.Set("very-long.suffix", binaryContent(1))).NotTo(HaveOccurred())
+		Expect(store.Set("not.sufix.not", binaryContent(1))).NotTo(HaveOccurred())
+		Expect(store.Set("unrelated", binaryContent(1))).NotTo(HaveOccurred())
+
+		Expect(store.KeysWithSuffix(".suffix")).To(ConsistOf([]string{
+			"test.suffix", ".suffix", "1.suffix", "very-long.suffix",
+		}))
+	},
+		Entry("for mariadb-store", &mariaDbStore{}),
+		Entry("for fs-store", &fsStore{}),
+	)
+
+	DescribeTable("returns empty list on no keys", func(ts testStore) {
+		defer ts.Cleanup()
+		Expect(ts.Init()).NotTo(HaveOccurred())
+		store := ts.Storage()
+
+		Expect(store.Set("test.suffix", binaryContent(1))).NotTo(HaveOccurred())
+
+		Expect(store.KeysWithSuffix(".unknown")).To(BeNil())
+	},
+		Entry("for mariadb-store", &mariaDbStore{}),
+		Entry("for fs-store", &fsStore{}),
+	)
+
 })
 
 func binaryContent(size int) []byte {
