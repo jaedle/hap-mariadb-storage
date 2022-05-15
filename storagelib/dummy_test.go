@@ -1,13 +1,13 @@
-package dummy_test
+package storagelib_test
 
 import (
-	"github.com/jaedle/hap-mariadb-storage/dummy"
+	"github.com/jaedle/hap-mariadb-storage/storagelib"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Dummy", func() {
 	It("returns true", func() {
-		Expect(dummy.Dummy()).To(BeTrue())
+		Expect(storagelib.Dummy()).To(BeTrue())
 	})
 })

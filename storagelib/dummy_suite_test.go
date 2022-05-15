@@ -1,4 +1,4 @@
-package dummy_test
+package storagelib_test
 
 import (
 	"testing"

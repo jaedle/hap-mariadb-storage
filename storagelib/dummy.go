@@ -1,4 +1,4 @@
-package dummy
+package storagelib
 
 func Dummy() bool {
 	return true
