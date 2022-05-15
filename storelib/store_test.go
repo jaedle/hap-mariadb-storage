@@ -4,10 +4,17 @@ import (
 	"database/sql"
 	"github.com/brutella/hap"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/jaedle/hap-mariadb-storage/storelib"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+const aKey = "a-key"
+const anotherKey = "another-key"
+
+const aStringValue = "value"
+const anotherStringValue = "another-value"
 
 const testDatasource = "root:password@tcp(localhost:3307)/database"
 
@@ -19,7 +26,6 @@ var _ = Describe("Store", func() {
 		var err error
 		db, err = sql.Open("mysql", testDatasource)
 		Expect(err).NotTo(HaveOccurred())
-
 		Expect(db.Ping()).NotTo(HaveOccurred())
 	})
 
@@ -30,24 +36,56 @@ var _ = Describe("Store", func() {
 	})
 
 	It("is assignable to hap store", func() {
-		var store hap.Store = storelib.New(nil, "hap")
+		var store hap.Store = storelib.New(nil, uuid.NewString())
 		Expect(store).NotTo(BeNil())
 	})
 
 	It("initialises", func() {
-		store := storelib.New(db, "table")
+		store := storelib.New(db, uuid.NewString())
 		Expect(store.Init()).NotTo(HaveOccurred())
 	})
 
-	It("initialises", func() {
-		store := storelib.New(db, "table")
+	It("can reinitalise", func() {
+		store := storelib.New(db, uuid.NewString())
 		Expect(store.Init()).NotTo(HaveOccurred())
 
-		Expect(store.Set("a-key", []byte("asdf"))).NotTo(HaveOccurred())
+		Expect(store.Init()).NotTo(HaveOccurred())
+	})
 
-		_, err := store.Get("a-key")
+	It("persists string", func() {
+		store := storelib.New(db, uuid.NewString())
+		Expect(store.Init()).NotTo(HaveOccurred())
+
+		Expect(store.Set(aKey, []byte(aStringValue))).NotTo(HaveOccurred())
+
+		val, err := store.Get(aKey)
 
 		Expect(err).NotTo(HaveOccurred())
+		Expect(val).To(Equal([]byte(aStringValue)))
+	})
+
+	It("overwrites previous value", func() {
+		store := storelib.New(db, uuid.NewString())
+		Expect(store.Init()).NotTo(HaveOccurred())
+		Expect(store.Set(aKey, []byte(aStringValue))).NotTo(HaveOccurred())
+
+		Expect(store.Set(aKey, []byte(anotherStringValue))).NotTo(HaveOccurred())
+
+		val, err := store.Get(aKey)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(val).To(Equal([]byte(anotherStringValue)))
+	})
+
+	It("returns error if key not found", func() {
+		store := storelib.New(db, uuid.NewString())
+		Expect(store.Init()).NotTo(HaveOccurred())
+		Expect(store.Set(aKey, []byte(aStringValue))).NotTo(HaveOccurred())
+
+		val, err := store.Get(anotherKey)
+
+		Expect(err).To(HaveOccurred())
+		Expect(val).To(BeNil())
 	})
 
 })
