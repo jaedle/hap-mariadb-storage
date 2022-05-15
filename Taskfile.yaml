@@ -1,0 +1,25 @@
+# https://taskfile.dev
+
+version: '3'
+
+silent: true
+
+tasks:
+  world:
+    desc: run all validation and pre-commit steps
+    cmds: [ task: format, task: test, task: cleanup ]
+
+  format:
+    desc: format sources
+    cmds: [ go fmt ./... ]
+
+  test:
+    desc: run tests
+    cmds: [ go test ./... ]
+
+  cleanup:
+    desc: cleanup go modules
+    cmds: [ go mod verify, go mod tidy ]
+
+  default:
+    cmds: [ task: world ]
