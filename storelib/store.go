@@ -2,6 +2,7 @@ package storelib
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -42,7 +43,18 @@ func (m *MariaDbStore) Get(key string) ([]byte, error) {
 }
 
 func (m *MariaDbStore) Delete(key string) error {
-	panic("implement me")
+	result, err := m.db.Exec(fmt.Sprintf("DELETE FROM `%s` WHERE `key` = ?", m.table), key)
+	if err != nil {
+		return err
+	}
+
+	if rows, err := result.RowsAffected(); err != nil {
+		return err
+	} else if rows == 0 {
+		return errors.New("unknown key")
+	} else {
+		return nil
+	}
 }
 
 func (m *MariaDbStore) KeysWithSuffix(suffix string) ([]string, error) {

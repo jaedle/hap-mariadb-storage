@@ -92,6 +92,36 @@ var _ = Describe("StoreComparison", func() {
 		Entry("for fs-store", &fsStore{}),
 	)
 
+	DescribeTable("deletes key", func(ts testStore) {
+		defer ts.Cleanup()
+		Expect(ts.Init()).NotTo(HaveOccurred())
+		store := ts.Storage()
+
+		Expect(store.Set(aKey, binaryContent(1))).NotTo(HaveOccurred())
+		Expect(store.Delete(aKey)).NotTo(HaveOccurred())
+
+		val, err := store.Get(aKey)
+
+		Expect(err).To(HaveOccurred())
+		Expect(val).To(BeNil())
+	},
+		Entry("for mariadb-store", &mariaDbStore{}),
+		Entry("for fs-store", &fsStore{}),
+	)
+
+	DescribeTable("fails to delete non existing key", func(ts testStore) {
+		defer ts.Cleanup()
+		Expect(ts.Init()).NotTo(HaveOccurred())
+		store := ts.Storage()
+
+		Expect(store.Set(aKey, binaryContent(1))).NotTo(HaveOccurred())
+
+		Expect(store.Delete(anotherKey)).To(HaveOccurred())
+	},
+		Entry("for mariadb-store", &mariaDbStore{}),
+		Entry("for fs-store", &fsStore{}),
+	)
+
 })
 
 func binaryContent(size int) []byte {
