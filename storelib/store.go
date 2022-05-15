@@ -18,7 +18,7 @@ type MariaDbStore struct {
 }
 
 func (m *MariaDbStore) Init() error {
-	_, err := m.db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` (`key` varchar(255), `value` BLOB, CONSTRAINT PK PRIMARY KEY (`key`)) ;", m.table))
+	_, err := m.db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` (`key` varchar(255), `value` MEDIUMBLOB, CONSTRAINT PK PRIMARY KEY (`key`)) ;", m.table))
 	return err
 }
 
