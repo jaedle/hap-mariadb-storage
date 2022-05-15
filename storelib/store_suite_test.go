@@ -1,4 +1,4 @@
-package storagelib_test
+package storelib_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestDummy(t *testing.T) {
+func TestStore(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Dummy Suite")
+	RunSpecs(t, "Store Suite")
 }
