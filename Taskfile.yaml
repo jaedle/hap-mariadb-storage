@@ -23,7 +23,8 @@ tasks:
     cmds: [ docker-compose up -d --force-recreate --remove-orphans --renew-anon-volumes ]
 
   wait-for-database-ready:
-    cmds: [ sleep 15 ]
+    # swallo error output as go mysql driver always prints to stderr
+    cmds: [ go run tools/wait_for_database_ready.go 2> /dev/null ]
 
   format:
     desc: format sources
