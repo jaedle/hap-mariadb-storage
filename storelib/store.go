@@ -1,6 +1,7 @@
 package storelib
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -13,7 +14,7 @@ type Configuration struct {
 	Table   string
 }
 
-const defaultTimeout = time.Second
+const defaultTimeout = 3 * time.Second
 
 func New(configuration Configuration) *MariaDbStore {
 	return &MariaDbStore{
@@ -38,17 +39,24 @@ type MariaDbStore struct {
 }
 
 func (m *MariaDbStore) Init() error {
-	_, err := m.db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` (`key` varchar(255), `value` MEDIUMBLOB, CONSTRAINT PK PRIMARY KEY (`key`)) ;", m.table))
+	ctx, cancelFunc := context.WithTimeout(context.Background(), m.timeout)
+	defer cancelFunc()
+	_, err := m.db.ExecContext(ctx, fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` (`key` varchar(255), `value` MEDIUMBLOB, CONSTRAINT PK PRIMARY KEY (`key`)) ;", m.table))
 	return err
 }
 
 func (m *MariaDbStore) Set(key string, value []byte) error {
-	_, err := m.db.Exec(fmt.Sprintf("INSERT INTO `%s` (`key`, `value`) VALUES (?,?) ON DUPLICATE KEY UPDATE `value`=?", m.table), key, value, value)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), m.timeout)
+	defer cancelFunc()
+	_, err := m.db.ExecContext(ctx, fmt.Sprintf("INSERT INTO `%s` (`key`, `value`) VALUES (?,?) ON DUPLICATE KEY UPDATE `value`=?", m.table), key, value, value)
 	return err
 }
 
 func (m *MariaDbStore) Get(key string) ([]byte, error) {
-	row := m.db.QueryRow(fmt.Sprintf("SELECT `value` FROM `%s` WHERE `key` = ?;", m.table), key)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), m.timeout)
+	defer cancelFunc()
+
+	row := m.db.QueryRowContext(ctx, fmt.Sprintf("SELECT `value` FROM `%s` WHERE `key` = ?;", m.table), key)
 	if err := row.Err(); err != nil {
 		return nil, err
 	}
@@ -62,7 +70,10 @@ func (m *MariaDbStore) Get(key string) ([]byte, error) {
 }
 
 func (m *MariaDbStore) Delete(key string) error {
-	result, err := m.db.Exec(fmt.Sprintf("DELETE FROM `%s` WHERE `key` = ?", m.table), key)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), m.timeout)
+	defer cancelFunc()
+
+	result, err := m.db.ExecContext(ctx, fmt.Sprintf("DELETE FROM `%s` WHERE `key` = ?", m.table), key)
 	if err != nil {
 		return err
 	}
@@ -77,7 +88,10 @@ func (m *MariaDbStore) Delete(key string) error {
 }
 
 func (m *MariaDbStore) KeysWithSuffix(suffix string) ([]string, error) {
-	rows, err := m.db.Query(fmt.Sprintf("SELECT `key` FROM `%s` WHERE `key` LIKE ?;", m.table), "%"+suffix)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), m.timeout)
+	defer cancelFunc()
+
+	rows, err := m.db.QueryContext(ctx, fmt.Sprintf("SELECT `key` FROM `%s` WHERE `key` LIKE ?;", m.table), "%"+suffix)
 	if err != nil {
 		return nil, err
 	}
