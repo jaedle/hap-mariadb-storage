@@ -5,7 +5,7 @@ import (
 	"github.com/brutella/hap"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
-	"github.com/jaedle/hap-mariadb-storage/storelib"
+	"github.com/jaedle/hap-mariadb-store/storelib"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"io/ioutil"

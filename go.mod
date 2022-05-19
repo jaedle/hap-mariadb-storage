@@ -1,4 +1,4 @@
-module github.com/jaedle/hap-mariadb-storage
+module github.com/jaedle/hap-mariadb-store
 
 go 1.16
 
