@@ -27,19 +27,28 @@ var _ = Describe("specific tests for maria-db-storage", func() {
 	})
 
 	It("reinitialize", func() {
-		store := storelib.New(db, uuid.NewString())
+		store := storelib.New(storelib.Configuration{
+			Db:    db,
+			Table: uuid.NewString(),
+		})
 		Expect(store.Init()).NotTo(HaveOccurred())
 	})
 
 	It("reinitializes", func() {
-		store := storelib.New(db, uuid.NewString())
+		store := storelib.New(storelib.Configuration{
+			Db:    db,
+			Table: uuid.NewString(),
+		})
 		Expect(store.Init()).NotTo(HaveOccurred())
 
 		Expect(store.Init()).NotTo(HaveOccurred())
 	})
 
 	It("does not drop data on reinit", func() {
-		store := storelib.New(db, uuid.NewString())
+		store := storelib.New(storelib.Configuration{
+			Db:    db,
+			Table: uuid.NewString(),
+		})
 		Expect(store.Init()).NotTo(HaveOccurred())
 		Expect(store.Set(aKey, []byte(aStringValue))).NotTo(HaveOccurred())
 

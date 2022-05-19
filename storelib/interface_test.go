@@ -191,7 +191,10 @@ func (m *mariaDbStore) Init() error {
 		return err
 	}
 
-	store := storelib.New(db, uuid.NewString())
+	store := storelib.New(storelib.Configuration{
+		Db:    db,
+		Table: uuid.NewString(),
+	})
 	if err := store.Init(); err != nil {
 		return err
 	}

@@ -4,18 +4,37 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 )
 
-func New(db *sql.DB, table string) *MariaDbStore {
+type Configuration struct {
+	Db      *sql.DB
+	Timeout time.Duration
+	Table   string
+}
+
+const defaultTimeout = time.Second
+
+func New(configuration Configuration) *MariaDbStore {
 	return &MariaDbStore{
-		table: table,
-		db:    db,
+		db:      configuration.Db,
+		table:   configuration.Table,
+		timeout: timeoutOrDefaultTimeout(configuration.Timeout),
+	}
+}
+
+func timeoutOrDefaultTimeout(to time.Duration) time.Duration {
+	if to == 0 {
+		return defaultTimeout
+	} else {
+		return to
 	}
 }
 
 type MariaDbStore struct {
-	table string
-	db    *sql.DB
+	table   string
+	db      *sql.DB
+	timeout time.Duration
 }
 
 func (m *MariaDbStore) Init() error {
