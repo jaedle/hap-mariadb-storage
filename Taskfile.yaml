@@ -53,8 +53,8 @@ tasks:
     cmds: [ find build/ -mindepth 1 -maxdepth 1 -type d | sed 's#build/##'  ]
 
   test-all-databases:
-    desc: 'run tests for all databases'
-    cmds: for db in $(task list-databases); do task world DATABASE="$db"; done
+    desc: run tests for all databases
+    cmds: [  for db in $(task list-databases); do task world DATABASE="$db"; done ]
 
   default:
     cmds: [ task: world ]
