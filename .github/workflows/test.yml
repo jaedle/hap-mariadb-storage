@@ -4,7 +4,24 @@ on:
   - pull_request
 
 jobs:
+  # phase 1
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: install task
+        run: brew install go-task/tap/go-task
+        env:
+          NOHOMEBREW_NO_AUTO_UPDATE: 1
+      - uses: actions/checkout@v3
+      - id: set-matrix
+        run: echo "::set-output name=matrix::{\"include\":[{\"database\":\"mariadb-10.3\"},{\"database\":\"mariadb-10.4\"}]}"
+
   test:
+    needs: generate-matrix
+    strategy:
+      matrix: ${{fromJson(needs.generate-matrix.outputs.matrix)}}
     runs-on: ubuntu-latest
     steps:
       - name: install task
