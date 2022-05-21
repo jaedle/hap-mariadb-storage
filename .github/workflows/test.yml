@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
       - id: set-matrix
         run: | 
-          echo "::set-output name=matrix::$(jq -ncR '[inputs]' <<< $(task list-databases) | jq  'map_values({"database": .})' |  jq -n '{"include":[inputs]}'  | jq -c .)"
+          echo "::set-output name=matrix::$(jq -ncR '[inputs]' <<< $(task list-databases) | jq  'map_values({\"database\": .})' |  jq -n '{\"include\":[inputs]}'  | jq -c .)"
 
   test:
     needs: generate-matrix
