@@ -32,7 +32,9 @@ tasks:
 
   test:
     desc: run tests
-    cmds: [ go test ./... ]
+    cmds:
+      - go clean -testcache
+      - go test ./...
 
   cleanup:
     desc: cleanup go modules
