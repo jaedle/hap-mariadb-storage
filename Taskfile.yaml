@@ -4,6 +4,9 @@ version: '3'
 
 silent: true
 
+vars:
+  DATABASE: 'mariadb-10.7'
+
 tasks:
   world:
     desc: run all validation and pre-commit steps
@@ -19,7 +22,7 @@ tasks:
     cmds: [ task: start-database, task: wait-for-database-ready ]
 
   start-database:
-    dir: build/
+    dir: "build/{{.DATABASE}}"
     cmds: [ docker-compose up -d --force-recreate --remove-orphans --renew-anon-volumes ]
 
   wait-for-database-ready:
@@ -42,9 +45,16 @@ tasks:
 
   stop-dependencies:
     desc: start development dependencies
-    dir: build/
+    dir: "build/{{.DATABASE}}"
     cmds: [ docker-compose down -v --remove-orphans  ]
 
+  list-databases:
+    desc: list all test databases
+    cmds: [ find build/ -mindepth 1 -maxdepth 1 -type d | sed 's#build/##'  ]
+
+  test-all-databases:
+    desc: run tests for all databases
+    cmds: [  for db in $(task list-databases); do task world DATABASE="$db"; done ]
 
   default:
     cmds: [ task: world ]
